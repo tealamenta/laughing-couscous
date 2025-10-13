@@ -148,7 +148,9 @@ def plot_nutrition_pie(nutrition: List[float]) -> Optional[plt.Figure]:
         startangle=90,
         textprops={"fontsize": 12},
     )
-    ax.set_title("Macronutrient Breakdown (% of Calories)", fontsize=14, fontweight="bold")
+    ax.set_title(
+        "Macronutrient Breakdown (% of Calories)", fontsize=14, fontweight="bold"
+    )
     plt.axis("equal")
 
     logger.debug("Graphique nutritionnel créé avec succès")

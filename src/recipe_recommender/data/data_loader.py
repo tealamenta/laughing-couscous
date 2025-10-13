@@ -6,10 +6,9 @@ en objets Recipe utilisables par l'application.
 """
 
 import ast
-import os
 from collections import Counter
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List
 
 import pandas as pd
 
@@ -21,8 +20,6 @@ logger = get_logger(__name__)
 
 class DataLoadError(Exception):
     """Exception levée lors d'erreurs de chargement de données."""
-
-    pass
 
 
 class DataLoader:
@@ -67,10 +64,10 @@ class DataLoader:
         self.ingredient_list: List[str] = []
 
         if not self.data_path.exists():
-            logger.error(f"Le dossier {data_path} n'existe pas")
+            logger.error("Le dossier %s n'existe pas", data_path)
             raise DataLoadError(f"Le dossier {data_path} n'existe pas")
 
-        logger.info(f"DataLoader initialisé avec data_path={data_path}")
+        logger.info("DataLoader initialisé avec data_path=%s", data_path)
 
     def check_required_files(self) -> List[str]:
         """
@@ -82,16 +79,16 @@ class DataLoader:
         Example:
             >>> missing = loader.check_required_files()
             >>> if missing:
-            ...     print(f"Fichiers manquants: {missing}")
+            ...     print(f"Fichiers manquants: , missing)
         """
         missing_files = []
         for filename in self.REQUIRED_FILES:
             if not (self.data_path / filename).exists():
                 missing_files.append(filename)
-                logger.warning(f"Fichier manquant: {filename}")
+                logger.warning("Fichier manquant: %s", filename)
 
         if missing_files:
-            logger.error(f"{len(missing_files)} fichiers manquants")
+            logger.error("%s fichiers manquants", len(missing_files))
         else:
             logger.info("Tous les fichiers requis sont présents")
 
@@ -165,7 +162,7 @@ class DataLoader:
             )
 
         except Exception as e:
-            logger.error(f"Erreur lors du chargement des données: {str(e)}")
+            logger.error("Erreur lors du chargement des données: %s", str(e))
             raise DataLoadError(f"Erreur de chargement: {str(e)}") from e
 
     def _create_id_mapping(self, pp_recipes: pd.DataFrame) -> Dict[int, int]:
@@ -225,7 +222,7 @@ class DataLoader:
         Returns:
             List[int]: Liste des IDs de recettes filtrées.
         """
-        logger.debug(f"Filtrage: top {top_n} recettes avec rating >= {min_rating}")
+        logger.debug("Filtrage: top {top_n} recettes avec rating >= %s", min_rating)
 
         # Prendre les top_n les plus notées
         most_rated = ratings_df.nlargest(top_n, "rating")
@@ -234,7 +231,7 @@ class DataLoader:
         filtered = most_rated[most_rated["rating"] >= min_rating]
 
         logger.info(
-            f"{len(filtered)} recettes après filtrage (rating >= {min_rating})"
+            "{len(filtered)} recettes après filtrage (rating >= %s)", min_rating
         )
 
         return filtered["recipe"].tolist()
@@ -252,7 +249,7 @@ class DataLoader:
         Returns:
             List[Recipe]: Liste d'objets Recipe.
         """
-        logger.debug(f"Création de {len(recipe_ids)} objets Recipe")
+        logger.debug("Création de %s objets Recipe", len(recipe_ids))
 
         filtered_recipes = raw_recipes[raw_recipes["id"].isin(recipe_ids)]
         recipes = []
@@ -271,10 +268,12 @@ class DataLoader:
                 )
                 recipes.append(recipe)
             except Exception as e:
-                logger.warning(f"Erreur lors de la création de la recette {row['id']}: {e}")
+                logger.warning(
+                    "Erreur lors de la création de la recette {row['id']}: %s", e
+                )
                 continue
 
-        logger.info(f"{len(recipes)} objets Recipe créés avec succès")
+        logger.info("%s objets Recipe créés avec succès", len(recipes))
         return recipes
 
     def _extract_ingredients(self, top_n: int = 1100) -> List[str]:
@@ -287,7 +286,7 @@ class DataLoader:
         Returns:
             List[str]: Liste des ingrédients les plus fréquents.
         """
-        logger.debug(f"Extraction des {top_n} ingrédients les plus courants")
+        logger.debug("Extraction des %s ingrédients les plus courants", top_n)
 
         all_ingredients = []
         for recipe in self.recipes:
@@ -296,7 +295,7 @@ class DataLoader:
         counter = Counter(all_ingredients)
         top_ingredients = [ing for ing, _ in counter.most_common(top_n)]
 
-        logger.info(f"{len(top_ingredients)} ingrédients extraits")
+        logger.info("%s ingrédients extraits", len(top_ingredients))
         return top_ingredients
 
     def get_recipes(self) -> List[Recipe]:

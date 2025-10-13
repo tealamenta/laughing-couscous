@@ -1,0 +1,15 @@
+[MASTER]
+init-hook='import sys; sys.path.append("src")'
+
+[MESSAGES CONTROL]
+disable=duplicate-code,too-many-arguments,too-many-positional-arguments,too-many-instance-attributes,broad-exception-caught,import-outside-toplevel,no-member
+
+[FORMAT]
+max-line-length=100
+
+[BASIC]
+good-names=i,j,k,ex,df,n,x,y,_
+
+[DESIGN]
+max-attributes=12
+max-args=7

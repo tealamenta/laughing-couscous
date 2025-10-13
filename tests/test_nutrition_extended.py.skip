@@ -1,0 +1,271 @@
+"""Tests étendus pour nutrition utilities."""
+
+from recipe_recommender.models.recipe import Recipe
+from recipe_recommender.utils.nutrition import (
+    calculate_daily_values,
+    filter_by_nutrition,
+    format_nutrition,
+    get_nutrition_label,
+    get_nutrition_summary,
+    plot_nutrition_pie,
+)
+
+
+def test_calculate_daily_values_empty():
+    """Test avec nutrition vide."""
+    result = calculate_daily_values([])
+    assert result == {}
+
+
+def test_calculate_daily_values_partial():
+    """Test avec nutrition partielle."""
+    nutrition = [500.0, 30.0, 15.0]
+    result = calculate_daily_values(nutrition)
+    assert result == {}
+
+
+def test_get_nutrition_summary_no_nutrition():
+    """Test résumé sans nutrition."""
+    recipe = Recipe(
+        recipe_id=1,
+        name="Test",
+        description="Test",
+        minutes=30,
+        tags=[],
+        nutrition=[],
+        ingredients=[],
+        steps=[],
+        n_steps=0,
+        n_ingredients=0,
+    )
+
+    result = get_nutrition_summary(recipe)
+    assert "non disponibles" in result
+
+
+def test_get_nutrition_summary_complete():
+    """Test résumé avec nutrition complète."""
+    recipe = Recipe(
+        recipe_id=1,
+        name="Test",
+        description="Test",
+        minutes=30,
+        tags=[],
+        nutrition=[500.0, 30.0, 15.0, 25.0, 20.0, 35.0, 40.0],
+        ingredients=[],
+        steps=[],
+        n_steps=0,
+        n_ingredients=0,
+    )
+
+    result = get_nutrition_summary(recipe)
+    assert "Calories" in result
+    assert "500" in result
+
+
+def test_get_nutrition_label_unknown():
+    """Test label nutrition inconnu."""
+    recipe = Recipe(
+        recipe_id=1,
+        name="Test",
+        description="Test",
+        minutes=30,
+        tags=[],
+        nutrition=[],
+        ingredients=[],
+        steps=[],
+        n_steps=0,
+        n_ingredients=0,
+    )
+
+    assert get_nutrition_label(recipe) == "UNKNOWN"
+
+
+def test_get_nutrition_label_high_protein():
+    """Test label high protein."""
+    recipe = Recipe(
+        recipe_id=1,
+        name="Test",
+        description="Test",
+        minutes=30,
+        tags=[],
+        nutrition=[400.0, 20.0, 5.0, 15.0, 35.0, 12.0, 25.0],
+        ingredients=[],
+        steps=[],
+        n_steps=0,
+        n_ingredients=0,
+    )
+
+    assert get_nutrition_label(recipe) == "HIGH_PROTEIN"
+
+
+def test_get_nutrition_label_high_cal():
+    """Test label high calorie."""
+    recipe = Recipe(
+        recipe_id=1,
+        name="Test",
+        description="Test",
+        minutes=30,
+        tags=[],
+        nutrition=[800.0, 30.0, 20.0, 25.0, 20.0, 35.0, 40.0],
+        ingredients=[],
+        steps=[],
+        n_steps=0,
+        n_ingredients=0,
+    )
+
+    assert get_nutrition_label(recipe) == "HIGH_CAL"
+
+
+def test_get_nutrition_label_standard():
+    """Test label standard."""
+    recipe = Recipe(
+        recipe_id=1,
+        name="Test",
+        description="Test",
+        minutes=30,
+        tags=[],
+        nutrition=[500.0, 25.0, 15.0, 20.0, 18.0, 30.0, 35.0],
+        ingredients=[],
+        steps=[],
+        n_steps=0,
+        n_ingredients=0,
+    )
+
+    assert get_nutrition_label(recipe) == "STANDARD"
+
+
+def test_filter_by_nutrition_all_criteria():
+    """Test filtrage avec tous les critères."""
+    recipes = [
+        Recipe(
+            recipe_id=1,
+            name="Low Cal",
+            description="Test",
+            minutes=30,
+            tags=[],
+            nutrition=[200.0, 10.0, 5.0, 15.0, 25.0, 8.0, 15.0],
+            ingredients=[],
+            steps=[],
+            n_steps=0,
+            n_ingredients=0,
+        ),
+        Recipe(
+            recipe_id=2,
+            name="High Cal",
+            description="Test",
+            minutes=30,
+            tags=[],
+            nutrition=[800.0, 50.0, 30.0, 40.0, 15.0, 45.0, 60.0],
+            ingredients=[],
+            steps=[],
+            n_steps=0,
+            n_ingredients=0,
+        ),
+    ]
+
+    result = filter_by_nutrition(
+        recipes,
+        max_calories=500.0,
+        min_calories=100.0,
+        max_fat_pdv=30.0,
+        max_carbs_pdv=40.0,
+        min_protein_pdv=20.0,
+    )
+
+    assert len(result) == 1
+    assert result[0].recipe_id == 1
+
+
+def test_format_nutrition_empty():
+    """Test formatage avec nutrition vide."""
+    result = format_nutrition([])
+    assert "non disponibles" in result
+
+
+def test_format_nutrition_incomplete():
+    """Test formatage avec nutrition incomplète."""
+    result = format_nutrition([500.0, 30.0])
+    assert "non disponibles" in result
+
+
+def test_plot_nutrition_pie_empty():
+    """Test graphique avec nutrition vide."""
+    result = plot_nutrition_pie([])
+    assert result is None
+
+
+def test_plot_nutrition_pie_incomplete():
+    """Test graphique avec nutrition incomplète."""
+    result = plot_nutrition_pie([500.0, 30.0])
+    assert result is None
+
+
+def test_filter_by_nutrition_min_calories():
+    """Test filtrage calories min."""
+    recipes = [
+        Recipe(
+            recipe_id=1,
+            name="Low",
+            description="Test",
+            minutes=30,
+            tags=[],
+            nutrition=[150.0, 10.0, 5.0, 15.0, 20.0, 8.0, 15.0],
+            ingredients=[],
+            steps=[],
+            n_steps=0,
+            n_ingredients=0,
+        ),
+        Recipe(
+            recipe_id=2,
+            name="High",
+            description="Test",
+            minutes=30,
+            tags=[],
+            nutrition=[600.0, 30.0, 20.0, 25.0, 25.0, 35.0, 40.0],
+            ingredients=[],
+            steps=[],
+            n_steps=0,
+            n_ingredients=0,
+        ),
+    ]
+
+    result = filter_by_nutrition(recipes, min_calories=200.0)
+
+    assert len(result) == 1
+    assert result[0].recipe_id == 2
+
+
+def test_filter_by_nutrition_max_fat():
+    """Test filtrage matières grasses max."""
+    recipes = [
+        Recipe(
+            recipe_id=1,
+            name="Low Fat",
+            description="Test",
+            minutes=30,
+            tags=[],
+            nutrition=[500.0, 15.0, 10.0, 20.0, 25.0, 12.0, 30.0],
+            ingredients=[],
+            steps=[],
+            n_steps=0,
+            n_ingredients=0,
+        ),
+        Recipe(
+            recipe_id=2,
+            name="High Fat",
+            description="Test",
+            minutes=30,
+            tags=[],
+            nutrition=[600.0, 45.0, 20.0, 25.0, 20.0, 40.0, 35.0],
+            ingredients=[],
+            steps=[],
+            n_steps=0,
+            n_ingredients=0,
+        ),
+    ]
+
+    result = filter_by_nutrition(recipes, max_fat_pdv=30.0)
+
+    assert len(result) == 1
+    assert result[0].recipe_id == 1

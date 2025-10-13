@@ -52,7 +52,9 @@ class FavoritesManager:
             with open(self.favorites_file, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 favorites = data.get("favorites", [])
-                logger.info(f"{len(favorites)} favoris chargés depuis {self.favorites_file}")
+                logger.info(
+                    f"{len(favorites)} favoris chargés depuis {self.favorites_file}"
+                )
                 return favorites
         except Exception as e:
             logger.error(f"Erreur lors du chargement des favoris: {str(e)}")
@@ -76,7 +78,9 @@ class FavoritesManager:
             data = {"favorites": favorites}
             with open(self.favorites_file, "w", encoding="utf-8") as f:
                 json.dump(data, f, indent=2)
-            logger.info(f"{len(favorites)} favoris sauvegardés dans {self.favorites_file}")
+            logger.info(
+                f"{len(favorites)} favoris sauvegardés dans {self.favorites_file}"
+            )
             return True
         except Exception as e:
             logger.error(f"Erreur lors de la sauvegarde des favoris: {str(e)}")
@@ -105,7 +109,9 @@ class FavoritesManager:
 
         return current_favorites
 
-    def remove_favorite(self, recipe_id: int, current_favorites: List[int]) -> List[int]:
+    def remove_favorite(
+        self, recipe_id: int, current_favorites: List[int]
+    ) -> List[int]:
         """
         Retire une recette des favoris et sauvegarde.
 

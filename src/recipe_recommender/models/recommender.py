@@ -141,11 +141,14 @@ class RecipeRecommender:
             raise ValueError("Aucune recette likée valide")
 
         # Calculer le profil moyen des recettes likées
-        liked_vectors = self.tfidf_matrix[liked_indices]
+        liked_vectors = self.tfidf_matrix[liked_indices].toarray()
         user_profile = liked_vectors.mean(axis=0)
 
         # Calculer la similarité avec toutes les recettes
-        similarities = cosine_similarity(user_profile, self.tfidf_matrix).flatten()
+        user_profile_2d = user_profile.reshape(1, -1)
+        similarities = cosine_similarity(
+            user_profile_2d, self.tfidf_matrix.toarray()
+        ).flatten()
 
         # Trier par similarité décroissante
         similar_indices = similarities.argsort()[::-1]
@@ -200,7 +203,9 @@ class RecipeRecommender:
 
         # Calculer la similarité avec toutes les recettes
         recipe_vector = self.tfidf_matrix[idx]
-        similarities = cosine_similarity(recipe_vector, self.tfidf_matrix).flatten()
+        similarities = cosine_similarity(
+            recipe_vector, self.tfidf_matrix.toarray()
+        ).flatten()
 
         # Trier par similarité décroissante
         similar_indices = similarities.argsort()[::-1]
@@ -219,7 +224,7 @@ class RecipeRecommender:
 
         return similar_recipes
 
-    def get_recipe_by_id(self, recipe_id: int) -> Optional[Recipe]:
+    def get_recipe_by_id(self, recipe_id: int) -> Recipe:
         """
         Récupère une recette par son ID.
 
@@ -227,14 +232,16 @@ class RecipeRecommender:
             recipe_id: ID de la recette à récupérer.
 
         Returns:
-            Optional[Recipe]: L'objet Recipe ou None si non trouvé.
+            Recipe: L'objet Recipe.
+
+        Raises:
+            ValueError: Si la recette n'est pas trouvée.
 
         Example:
             >>> recipe = recommender.get_recipe_by_id(123)
-            >>> if recipe:
-            ...     print(recipe.name)
+            >>> print(recipe.name)
         """
         if recipe_id in self.id_to_index:
             idx = self.id_to_index[recipe_id]
             return self.recipes[idx]
-        return None
+        raise ValueError(f"Recette avec ID {recipe_id} non trouvée")

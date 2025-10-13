@@ -57,9 +57,7 @@ def filter_recipes(
     # Filtre par ingrédients
     if ingredients:
         filtered = [
-            r
-            for r in filtered
-            if all(r.has_ingredient(ing) for ing in ingredients)
+            r for r in filtered if all(r.has_ingredient(ing) for ing in ingredients)
         ]
         logger.debug(f"{len(filtered)} recettes après filtre ingrédients")
 

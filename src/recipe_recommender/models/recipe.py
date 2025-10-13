@@ -5,9 +5,8 @@ Ce module définit la structure de données d'une recette avec tous ses attribut
 et méthodes pour manipuler et afficher les informations.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Dict, Any, Optional
-import ast
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
