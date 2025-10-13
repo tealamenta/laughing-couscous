@@ -1,5 +1,6 @@
 """Utilitaires pour l'application Recipe Recommender."""
 
+from recipe_recommender.utils.favorites import FavoritesManager
 from recipe_recommender.utils.filters import (
     filter_by_nutrition,
     filter_recipes,
@@ -23,4 +24,5 @@ __all__ = [
     "calculate_macro_percentages",
     "plot_nutrition_pie",
     "get_nutrition_category",
+    "FavoritesManager",
 ]

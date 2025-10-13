@@ -145,3 +145,4 @@ logs/*.log
 
 # Streamlit
 .streamlit/
+user_favorites.json
