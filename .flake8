@@ -1,9 +1,11 @@
 [flake8]
 max-line-length = 100
-max-complexity = 30
-extend-ignore = E203, W503
+ignore = E501
+exclude = 
+    .git,
+    __pycache__,
+    venv,
+    build,
+    dist
 per-file-ignores =
-    src/recipe_recommender/app.py:E501
-    src/recipe_recommender/utils/favorites.py:E501
-    src/recipe_recommender/utils/logger.py:E501
-exclude = .git, __pycache__, build, dist, .venv
+    __init__.py: F401

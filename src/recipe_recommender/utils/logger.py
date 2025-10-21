@@ -7,7 +7,7 @@ Ce module configure deux loggers:
 """
 
 import logging
-import os
+# import os  # Unused
 from pathlib import Path
 from typing import Optional
 

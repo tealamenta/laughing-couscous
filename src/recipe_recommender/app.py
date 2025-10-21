@@ -7,7 +7,6 @@ personnalisées basées sur leurs préférences.
 """
 
 import os
-from typing import List, Optional
 
 import matplotlib.pyplot as plt
 import streamlit as st
@@ -520,7 +519,7 @@ def main() -> None:
     st.markdown(
         f"""
         <div style='text-align: center'>
-            <p>Made with love by <a href='https://github.com/tealamenta'>tealamenta</a> | 
+            <p>Made with love by <a href='https://github.com/tealamenta'>tealamenta</a> |
             Data from <a href='https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions'>Kaggle Food.com</a></p>
             <p style='font-size: 0.8em; color: gray;'>Session: {fav_count} favoris | Persistance activee</p>
         </div>

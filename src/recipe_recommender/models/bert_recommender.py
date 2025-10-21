@@ -104,7 +104,7 @@ class BERTRecommender:
 
         recipe_embedding = self.embeddings[recipe_index].reshape(1, -1)
         similarities = cosine_similarity(recipe_embedding, self.embeddings)[0]
-        similar_indices = similarities.argsort()[::-1][1 : n + 1]
+        similar_indices = similarities.argsort()[::-1][1: n + 1]
 
         return [self.recipes[idx] for idx in similar_indices]
 

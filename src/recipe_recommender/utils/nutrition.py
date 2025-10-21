@@ -5,10 +5,9 @@ Ce module fournit des fonctions pour formater et visualiser
 les informations nutritionnelles des recettes.
 """
 
-from typing import List, Optional, Tuple
+from typing import List, Optional
 
 import matplotlib.pyplot as plt
-import numpy as np
 
 from recipe_recommender.utils.logger import get_logger
 
