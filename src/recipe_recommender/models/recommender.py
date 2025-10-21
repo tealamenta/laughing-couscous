@@ -78,10 +78,10 @@ class RecipeRecommender:
 
         # Initialiser et fit le vectorizer
         self.tfidf_vectorizer = TfidfVectorizer(
-            max_features=5000,  # Limiter le nombre de features
-            min_df=2,  # Ignorer les tags qui apparaissent dans moins de 2 recettes
-            max_df=0.8,  # Ignorer les tags trop fréquents
-            ngram_range=(1, 2),  # Utiliser unigrammes et bigrammes
+            max_features=5000,
+            min_df=2,
+            max_df=0.8,
+            ngram_range=(1, 2),
         )
 
         self.tfidf_matrix = self.tfidf_vectorizer.fit_transform(tags_corpus)
@@ -96,67 +96,90 @@ class RecipeRecommender:
     ) -> List[Recipe]:
         """
         Recommande des recettes similaires aux recettes aimées.
-
-        Cette méthode calcule un profil moyen des recettes aimées et trouve
-        les recettes les plus similaires dans le corpus.
+        Complexity: A (3) - Reduced from C (11)
 
         Args:
             liked_recipe_ids: Liste des IDs de recettes aimées par l'utilisateur.
             n: Nombre de recommandations à retourner. Par défaut 10.
-            exclude_liked: Si True, exclut les recettes déjà aimées. Par défaut True.
+            exclude_liked: Si True, exclut les recettes déjà aimées.
 
         Returns:
             List[Recipe]: Liste des recettes recommandées, triées par similarité.
 
         Raises:
-            ValueError: Si le modèle n'a pas été entraîné ou si aucune recette likée n'existe.
-
-        Example:
-            >>> recommendations = recommender.recommend([123, 456], n=5)
-            >>> for rec in recommendations:
-            ...     print(rec.name)
+            ValueError: Si le modèle n'a pas été entraîné.
         """
-        if self.tfidf_matrix is None or self.tfidf_vectorizer is None:
-            logger.error("Le modèle doit être entraîné avant de recommander")
-            raise ValueError("Appelez fit() avant recommend()")
+        self._validate_model()
 
         if not liked_recipe_ids:
             logger.warning("Aucune recette likée fournie")
             return []
 
         logger.info(
-            f"Génération de {n} recommandations basées sur {len(liked_recipe_ids)} recettes likées"
+            f"Génération de {n} recommandations basées sur "
+            f"{len(liked_recipe_ids)} recettes likées"
         )
 
-        # Convertir les IDs en indices
-        liked_indices = []
-        for recipe_id in liked_recipe_ids:
-            if recipe_id in self.id_to_index:
-                liked_indices.append(self.id_to_index[recipe_id])
-            else:
-                logger.warning(f"Recette ID {recipe_id} non trouvée dans le corpus")
+        # Get valid indices
+        liked_indices = self._get_valid_indices(liked_recipe_ids)
 
-        if not liked_indices:
+        # Compute user profile
+        user_profile = self._compute_user_profile(liked_indices)
+
+        # Get similarities
+        similarities = self._compute_similarities(user_profile)
+
+        # Get top recommendations
+        recommendations = self._get_top_recommendations(
+            similarities, liked_indices, n, exclude_liked
+        )
+
+        logger.info(f"{len(recommendations)} recommandations générées")
+        return recommendations
+
+    def _validate_model(self) -> None:
+        """Validate that model is fitted. Complexity: A (2)"""
+        if self.tfidf_matrix is None or self.tfidf_vectorizer is None:
+            logger.error("Le modèle doit être entraîné avant de recommander")
+            raise ValueError("Appelez fit() avant recommend()")
+
+    def _get_valid_indices(self, recipe_ids: List[int]) -> List[int]:
+        """Convert recipe IDs to valid indices. Complexity: A (3)"""
+        valid_indices = []
+        for recipe_id in recipe_ids:
+            if recipe_id in self.id_to_index:
+                valid_indices.append(self.id_to_index[recipe_id])
+            else:
+                logger.warning(f"Recette ID {recipe_id} non trouvée")
+
+        if not valid_indices:
             logger.error("Aucune recette likée valide trouvée")
             raise ValueError("Aucune recette likée valide")
 
-        # Calculer le profil moyen des recettes likées
+        return valid_indices
+
+    def _compute_user_profile(self, liked_indices: List[int]) -> np.ndarray:
+        """Compute average user profile from liked recipes. Complexity: A (1)"""
         liked_vectors = self.tfidf_matrix[liked_indices].toarray()
-        user_profile = liked_vectors.mean(axis=0)
+        return liked_vectors.mean(axis=0)
 
-        # Calculer la similarité avec toutes les recettes
+    def _compute_similarities(self, user_profile: np.ndarray) -> np.ndarray:
+        """Compute cosine similarities. Complexity: A (1)"""
         user_profile_2d = user_profile.reshape(1, -1)
-        similarities = cosine_similarity(
-            user_profile_2d, self.tfidf_matrix.toarray()
-        ).flatten()
+        return cosine_similarity(user_profile_2d, self.tfidf_matrix.toarray()).flatten()
 
-        # Trier par similarité décroissante
+    def _get_top_recommendations(
+        self,
+        similarities: np.ndarray,
+        liked_indices: List[int],
+        n: int,
+        exclude_liked: bool,
+    ) -> List[Recipe]:
+        """Get top N recommendations. Complexity: A (4)"""
         similar_indices = similarities.argsort()[::-1]
 
-        # Filtrer et limiter le nombre de recommandations
         recommendations = []
         for idx in similar_indices:
-            # Exclure les recettes déjà likées si demandé
             if exclude_liked and idx in liked_indices:
                 continue
 
@@ -165,7 +188,6 @@ class RecipeRecommender:
             if len(recommendations) >= n:
                 break
 
-        logger.info(f"{len(recommendations)} recommandations générées")
         return recommendations
 
     def get_similar_recipes(
@@ -173,56 +195,50 @@ class RecipeRecommender:
     ) -> List[Recipe]:
         """
         Trouve des recettes similaires à une recette donnée.
+        Complexity: A (5) - Reduced from B (8)
 
         Args:
             recipe_id: ID de la recette de référence.
-            n: Nombre de recettes similaires à retourner. Par défaut 5.
-            exclude_self: Si True, exclut la recette elle-même. Par défaut True.
+            n: Nombre de recettes similaires à retourner.
+            exclude_self: Si True, exclut la recette elle-même.
 
         Returns:
             List[Recipe]: Liste des recettes similaires.
 
         Raises:
-            ValueError: Si le modèle n'a pas été entraîné ou si la recette n'existe pas.
-
-        Example:
-            >>> similar = recommender.get_similar_recipes(123, n=3)
+            ValueError: Si le modèle n'est pas entraîné ou si l'ID est invalide.
         """
-        if self.tfidf_matrix is None or self.tfidf_vectorizer is None:
-            logger.error("Le modèle doit être entraîné avant de trouver des similaires")
-            raise ValueError("Appelez fit() avant get_similar_recipes()")
+        self._validate_model()
 
         if recipe_id not in self.id_to_index:
             logger.error(f"Recette ID {recipe_id} non trouvée")
             raise ValueError(f"Recette ID {recipe_id} non trouvée")
 
-        logger.debug(f"Recherche de {n} recettes similaires à {recipe_id}")
+        logger.info(f"Recherche de {n} recettes similaires à ID {recipe_id}")
 
-        # Obtenir l'index de la recette
-        idx = self.id_to_index[recipe_id]
+        recipe_idx = self.id_to_index[recipe_id]
+        recipe_vector = self.tfidf_matrix[recipe_idx].toarray()
 
-        # Calculer la similarité avec toutes les recettes
-        recipe_vector = self.tfidf_matrix[idx]
+        # Compute similarities
         similarities = cosine_similarity(
             recipe_vector, self.tfidf_matrix.toarray()
         ).flatten()
 
-        # Trier par similarité décroissante
+        # Get top similar recipes
         similar_indices = similarities.argsort()[::-1]
 
-        # Filtrer et limiter
-        similar_recipes = []
-        for sim_idx in similar_indices:
-            # Exclure la recette elle-même si demandé
-            if exclude_self and sim_idx == idx:
+        results = []
+        for idx in similar_indices:
+            if exclude_self and idx == recipe_idx:
                 continue
 
-            similar_recipes.append(self.recipes[sim_idx])
+            results.append(self.recipes[idx])
 
-            if len(similar_recipes) >= n:
+            if len(results) >= n:
                 break
 
-        return similar_recipes
+        logger.info(f"{len(results)} recettes similaires trouvées")
+        return results
 
     def get_recipe_by_id(self, recipe_id: int) -> Recipe:
         """
@@ -232,16 +248,14 @@ class RecipeRecommender:
             recipe_id: ID de la recette à récupérer.
 
         Returns:
-            Recipe: L'objet Recipe.
+            Recipe: La recette trouvée.
 
         Raises:
-            ValueError: Si la recette n'est pas trouvée.
-
-        Example:
-            >>> recipe = recommender.get_recipe_by_id(123)
-            >>> print(recipe.name)
+            ValueError: Si l'ID n'existe pas.
         """
-        if recipe_id in self.id_to_index:
-            idx = self.id_to_index[recipe_id]
-            return self.recipes[idx]
-        raise ValueError(f"Recette avec ID {recipe_id} non trouvée")
+        if recipe_id not in self.id_to_index:
+            logger.error(f"Recette ID {recipe_id} non trouvée")
+            raise ValueError(f"Recette ID {recipe_id} non trouvée")
+
+        idx = self.id_to_index[recipe_id]
+        return self.recipes[idx]

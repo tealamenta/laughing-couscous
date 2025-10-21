@@ -208,3 +208,15 @@ def test_get_recipe_by_id_invalid(recommender):
     """Test avec un ID inexistant."""
     with pytest.raises(ValueError, match=r"Recette (avec )?ID .* non trouvée"):
         recommender.get_recipe_by_id(999)
+
+
+def test_recommender_init_attributes(sample_recipes):
+    """Test que les attributs sont correctement initialisés."""
+    from recipe_recommender.models.recommender import RecipeRecommender
+
+    recommender = RecipeRecommender(sample_recipes)
+
+    assert recommender.tfidf_vectorizer is None
+    assert recommender.tfidf_matrix is None
+    assert len(recommender.id_to_index) == len(sample_recipes)
+    assert len(recommender.index_to_id) == len(sample_recipes)

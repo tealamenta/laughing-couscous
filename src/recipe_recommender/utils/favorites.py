@@ -1,8 +1,8 @@
 """
 Module de gestion des recettes favorites.
 
-Ce module gère la persistance des recettes favorites de l'utilisateur
-dans un fichier JSON local.
+Permet de sauvegarder et charger les recettes favorites
+de l'utilisateur dans un fichier JSON.
 """
 
 import json
@@ -15,37 +15,27 @@ logger = get_logger(__name__)
 
 
 class FavoritesManager:
-    """
-    Gère la sauvegarde et le chargement des recettes favorites.
+    """Gestionnaire des recettes favorites."""
 
-    Attributes:
-        favorites_file: Chemin vers le fichier JSON de sauvegarde.
-    """
-
-    def __init__(self, favorites_file: str = "./user_favorites.json") -> None:
+    def __init__(self, favorites_file: str = "data/favorites.json"):
         """
         Initialise le gestionnaire de favoris.
 
         Args:
-            favorites_file: Chemin vers le fichier de sauvegarde. Par défaut "./user_favorites.json".
+            favorites_file: Chemin vers le fichier JSON des favoris.
         """
         self.favorites_file = Path(favorites_file)
-        logger.info(f"FavoritesManager initialisé avec fichier: {self.favorites_file}")
+        self.favorites_file.parent.mkdir(parents=True, exist_ok=True)
 
     def load_favorites(self) -> List[int]:
         """
-        Charge les IDs des recettes favorites depuis le fichier JSON.
+        Charge la liste des IDs de recettes favorites.
 
         Returns:
-            List[int]: Liste des IDs de recettes favorites.
-
-        Example:
-            >>> manager = FavoritesManager()
-            >>> favorites = manager.load_favorites()
-            >>> print(f"Loaded {len(favorites)} favorites")
+            List[int]: Liste des IDs des recettes favorites.
         """
         if not self.favorites_file.exists():
-            logger.info("Aucun fichier de favoris trouvé, création d'une liste vide")
+            logger.info("Aucun fichier de favoris trouve, creation liste vide")
             return []
 
         try:
@@ -53,83 +43,63 @@ class FavoritesManager:
                 data = json.load(f)
                 favorites = data.get("favorites", [])
                 logger.info(
-                    f"{len(favorites)} favoris chargés depuis {self.favorites_file}"
+                    f"{len(favorites)} favoris charges depuis " f"{self.favorites_file}"
                 )
                 return favorites
+        except json.JSONDecodeError:
+            logger.error("Erreur lecture fichier favoris, retour liste vide")
+            return []
+        except PermissionError:
+            logger.error("Permission refusee pour lire favoris")
+            return []
         except Exception as e:
-            logger.error(f"Erreur lors du chargement des favoris: {str(e)}")
+            logger.error(f"Erreur chargement favoris: {e}")
             return []
 
-    def save_favorites(self, favorites: List[int]) -> bool:
+    def save_favorites(self, favorites: List[int]) -> None:
         """
-        Sauvegarde les IDs des recettes favorites dans le fichier JSON.
+        Sauvegarde la liste des favoris.
 
         Args:
-            favorites: Liste des IDs de recettes à sauvegarder.
-
-        Returns:
-            bool: True si la sauvegarde a réussi, False sinon.
-
-        Example:
-            >>> manager = FavoritesManager()
-            >>> success = manager.save_favorites([123, 456, 789])
+            favorites: Liste des IDs de recettes favorites.
         """
         try:
-            data = {"favorites": favorites}
             with open(self.favorites_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, indent=2)
+                json.dump({"favorites": favorites}, f, indent=2)
             logger.info(
-                f"{len(favorites)} favoris sauvegardés dans {self.favorites_file}"
+                f"{len(favorites)} favoris sauvegardes dans " f"{self.favorites_file}"
             )
-            return True
+        except IOError as e:
+            logger.error(f"Erreur sauvegarde favoris: {e}")
         except Exception as e:
-            logger.error(f"Erreur lors de la sauvegarde des favoris: {str(e)}")
-            return False
+            logger.error(f"Erreur inattendue sauvegarde favoris: {e}")
 
-    def add_favorite(self, recipe_id: int, current_favorites: List[int]) -> List[int]:
+    def add_favorite(self, recipe_id: int) -> None:
         """
-        Ajoute une recette aux favoris et sauvegarde.
+        Ajoute une recette aux favoris.
 
         Args:
             recipe_id: ID de la recette à ajouter.
-            current_favorites: Liste actuelle des favoris.
-
-        Returns:
-            List[int]: Liste mise à jour des favoris.
-
-        Example:
-            >>> updated = manager.add_favorite(999, [123, 456])
         """
-        if recipe_id not in current_favorites:
-            current_favorites.append(recipe_id)
-            self.save_favorites(current_favorites)
-            logger.info(f"Recette {recipe_id} ajoutée aux favoris")
+        favorites = self.load_favorites()
+        if recipe_id not in favorites:
+            favorites.append(recipe_id)
+            self.save_favorites(favorites)
+            logger.info(f"Recette {recipe_id} ajoutee aux favoris")
         else:
-            logger.warning(f"Recette {recipe_id} déjà dans les favoris")
+            logger.debug(f"Recette {recipe_id} deja dans favoris")
 
-        return current_favorites
-
-    def remove_favorite(
-        self, recipe_id: int, current_favorites: List[int]
-    ) -> List[int]:
+    def remove_favorite(self, recipe_id: int) -> None:
         """
-        Retire une recette des favoris et sauvegarde.
+        Retire une recette des favoris.
 
         Args:
             recipe_id: ID de la recette à retirer.
-            current_favorites: Liste actuelle des favoris.
-
-        Returns:
-            List[int]: Liste mise à jour des favoris.
-
-        Example:
-            >>> updated = manager.remove_favorite(123, [123, 456, 789])
         """
-        if recipe_id in current_favorites:
-            current_favorites.remove(recipe_id)
-            self.save_favorites(current_favorites)
-            logger.info(f"Recette {recipe_id} retirée des favoris")
+        favorites = self.load_favorites()
+        if recipe_id in favorites:
+            favorites.remove(recipe_id)
+            self.save_favorites(favorites)
+            logger.info(f"Recette {recipe_id} retiree des favoris")
         else:
-            logger.warning(f"Recette {recipe_id} n'était pas dans les favoris")
-
-        return current_favorites
+            logger.debug(f"Recette {recipe_id} pas dans favoris")

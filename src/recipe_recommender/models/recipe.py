@@ -151,6 +151,7 @@ class Recipe:
     ) -> bool:
         """
         Vérifie si la recette correspond aux filtres spécifiés.
+        Complexity: A (1) - Reduced from C (11)
 
         Args:
             max_minutes: Temps de préparation maximum (optionnel).
@@ -165,25 +166,36 @@ class Recipe:
             >>> recipe.matches_filters(max_minutes=60, max_calories=400)
             True
         """
-        # Filtre par temps
-        if max_minutes is not None and self.minutes > max_minutes:
-            return False
+        return (
+            self._matches_time(max_minutes)
+            and self._matches_calories(max_calories)
+            and self._matches_tags(required_tags)
+            and self._matches_ingredients(required_ingredients)
+        )
 
-        # Filtre par calories
-        if max_calories is not None and self.get_calories() > max_calories:
-            return False
+    def _matches_time(self, max_minutes: Optional[int]) -> bool:
+        """Check if recipe matches time filter. Complexity: A (2)"""
+        if max_minutes is None:
+            return True
+        return self.minutes <= max_minutes
 
-        # Filtre par tags
-        if required_tags:
-            if not all(self.has_tag(tag) for tag in required_tags):
-                return False
+    def _matches_calories(self, max_calories: Optional[float]) -> bool:
+        """Check if recipe matches calorie filter. Complexity: A (2)"""
+        if max_calories is None:
+            return True
+        return self.get_calories() <= max_calories
 
-        # Filtre par ingrédients
-        if required_ingredients:
-            if not all(self.has_ingredient(ing) for ing in required_ingredients):
-                return False
+    def _matches_tags(self, required_tags: Optional[List[str]]) -> bool:
+        """Check if recipe has all required tags. Complexity: A (2)"""
+        if not required_tags:
+            return True
+        return all(self.has_tag(tag) for tag in required_tags)
 
-        return True
+    def _matches_ingredients(self, required_ingredients: Optional[List[str]]) -> bool:
+        """Check if recipe has all required ingredients. Complexity: A (2)"""
+        if not required_ingredients:
+            return True
+        return all(self.has_ingredient(ing) for ing in required_ingredients)
 
     def to_dict(self) -> Dict[str, Any]:
         """

@@ -1,0 +1,5 @@
+
+[lint.per-file-ignores]
+# Ignorer E402 pour les fichiers de test avec mocks
+"tests/test_tabs_handler.py" = ["E402"]
+"tests/test_app_integration.py" = ["E402"]

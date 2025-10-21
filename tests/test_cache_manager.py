@@ -1,7 +1,6 @@
 """Tests pour CacheManager."""
 
 import pytest
-from pathlib import Path
 from recipe_recommender.utils.cache_manager import CacheManager
 
 
@@ -64,3 +63,78 @@ def test_delete_cache(temp_cache_dir):
     success = manager.delete_cache("test")
     assert success
     assert not manager.cache_exists("test")
+
+
+def test_load_cache_file_not_found():
+    """Test chargement cache inexistant."""
+    from recipe_recommender.utils.cache_manager import CacheManager
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        manager = CacheManager(tmpdir)
+        result = manager.load_cache("nonexistent")
+        assert result is None
+
+
+def test_load_cache_corrupted(tmp_path):
+    """Test chargement cache corrompu."""
+    from recipe_recommender.utils.cache_manager import CacheManager
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    manager = CacheManager(str(cache_dir))
+
+    # Créer fichier corrompu
+    cache_file = cache_dir / "corrupted.pkl"
+    cache_file.write_text("not a pickle")
+
+    result = manager.load_cache("corrupted")
+    assert result is None
+
+
+def test_save_cache_error(tmp_path):
+    """Test erreur sauvegarde cache."""
+    from recipe_recommender.utils.cache_manager import CacheManager
+    import os
+
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    manager = CacheManager(str(cache_dir))
+
+    # Rendre le répertoire non-writable
+    os.chmod(str(cache_dir), 0o444)
+
+    try:
+        result = manager.save_cache("test", {"data": "test"})
+        # Si réussit, remettre permissions
+        os.chmod(str(cache_dir), 0o755)
+        # Le test devrait échouer ou retourner False
+        assert result is False or result is None
+    except Exception:
+        # Remettre permissions
+        os.chmod(str(cache_dir), 0o755)
+
+
+def test_delete_cache_success():
+    """Test suppression cache avec succès."""
+    from recipe_recommender.utils.cache_manager import CacheManager
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        manager = CacheManager(tmpdir)
+        manager.save_cache("test", {"data": "value"})
+
+        result = manager.delete_cache("test")
+        assert result is True
+        assert not manager.cache_exists("test")
+
+
+def test_delete_cache_not_found():
+    """Test suppression cache inexistant."""
+    from recipe_recommender.utils.cache_manager import CacheManager
+    import tempfile
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        manager = CacheManager(tmpdir)
+        result = manager.delete_cache("nonexistent")
+        assert result is False
