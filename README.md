@@ -199,17 +199,6 @@ Poussez sur la branche `main`, le déploiement est automatique.
 **Comment ajouter un nouvel algorithme de recommandation ?**  
 Ajoutez votre modèle dans `src/recipe_recommender/models/recommender.py`.
 
----
-
-## Documentation
-
-- Documentation technique : [docs/](docs/)
-- API : [docs/api.md](docs/api.md)
-- Exemples de visualisations : [docs/visuals.md](docs/visuals.md)
-
----
-
-
 
 ---
 
