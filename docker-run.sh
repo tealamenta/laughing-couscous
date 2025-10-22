@@ -22,7 +22,7 @@ docker-compose up -d
 echo ""
 echo " Application lancée!"
 echo ""
-echo "  http://localhost1"
+echo "  http://localhost:8501/"
 echo ""
 echo " Commandes utiles:"
 echo "   docker-compose logs -f           # Voir les logs"
