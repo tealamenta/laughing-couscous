@@ -17,12 +17,6 @@ Cette app combine des filtres avancés, des visualisations nutritionnelles inter
 
 ---
 
-## Démo
-
-- Démo en ligne : [https://recipe-recommender-tealamenta.streamlit.app](https://recipe-recommender-tealamenta.streamlit.app)
-
----
-
 ## Fonctionnalités
 
 - Recherche avancée : filtrage par ingrédients, cuisine, régimes alimentaires, calories, temps de cuisson
