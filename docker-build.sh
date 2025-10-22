@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🐳 BUILD DOCKER IMAGE"
-echo "====================="
+echo "🐳 D ER E"
+echo "="
 echo ""
 
 # Vérifier Docker

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🚀 LANCEMENT RECIPE RECOMMENDER (DOCKER)"
-echo "========================================="
+echo "🚀 T PE DER (ER)"
+echo "="
 echo ""
 
 # Vérifier Docker
@@ -22,7 +22,7 @@ docker-compose up -d
 echo ""
 echo "✅ Application lancée!"
 echo ""
-echo "🌐 URL: http://localhost:8501"
+echo "🌐  http://localhost1"
 echo ""
 echo "📋 Commandes utiles:"
 echo "   docker-compose logs -f           # Voir les logs"

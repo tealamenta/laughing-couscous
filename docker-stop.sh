@@ -1,7 +1,7 @@
 #!/bin/bash
 
-echo "🛑 ARRÊT RECIPE RECOMMENDER (DOCKER)"
-echo "===================================="
+echo "🛑 ARRÊT PE DER (ER)"
+echo ""
 echo ""
 
 docker-compose down
