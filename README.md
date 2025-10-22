@@ -1,4 +1,4 @@
-# Recipe Recommender 🍳
+# Recipe Recommender 
 
 ![CI Status](https://github.com/tealamenta/recipe-recommender/workflows/CI%20-%20Tests%20%26%20Quality/badge.svg)
 ![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)
@@ -7,11 +7,11 @@
 ![Coverage](https://img.shields.io/badge/coverage-41%25-yellow.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
-# 🍳 Recipe Recommender
+#  Recipe Recommender
 
 Une application web de recommandation de recettes basée sur les préférences utilisateur, les ingrédients disponibles et les restrictions alimentaires.
 
-## 📋 Table des matières
+##  Table des matières
 
 - [Fonctionnalités](#fonctionnalités)
 - [Prérequis](#prérequis)
@@ -24,22 +24,22 @@ Une application web de recommandation de recettes basée sur les préférences u
 - [Contribution](#contribution)
 - [License](#license)
 
-## ✨ Fonctionnalités
+##  Fonctionnalités
 
-- 🔍 **Recherche avancée** : Filtrer les recettes par ingrédients, origine ethnique, restrictions alimentaires
+-  **Recherche avancée** : Filtrer les recettes par ingrédients, origine ethnique, restrictions alimentaires
 - ⏱️ **Filtres nutritionnels** : Limiter les calories, temps de cuisson
-- 📊 **Visualisation nutritionnelle** : Graphiques interactifs des macronutriments
-- ❤️ **Système de favoris** : Sauvegarder vos recettes préférées
+-  **Visualisation nutritionnelle** : Graphiques interactifs des macronutriments
+- ️ **Système de favoris** : Sauvegarder vos recettes préférées
 - 🤖 **Recommandations personnalisées** : Algorithme de recommandation basé sur vos goûts
-- 📈 **Dashboard utilisateur** : Suivez vos recettes favorites et découvertes
+-  **Dashboard utilisateur** : Suivez vos recettes favorites et découvertes
 
-## 🔧 Prérequis
+##  Prérequis
 
 - Python 3.10 ou supérieur
 - Poetry (gestionnaire de dépendances)
 - Git
 
-## 📥 Installation
+##  Installation
 
 ### 1. Cloner le repository
 

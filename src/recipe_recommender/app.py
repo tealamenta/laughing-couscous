@@ -299,7 +299,7 @@ def display_recipe_nutrition(recipe):
     with col_leg2:
         st.markdown("🟡 **20-50%** : Modéré")
     with col_leg3:
-        st.markdown("🔴 **>50%** : Élevé")
+        st.markdown(" **>50%** : Élevé")
 
     st.caption(" Valeurs basées sur un régime de 2000 calories/jour (FDA)")
 
