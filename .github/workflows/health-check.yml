@@ -1,0 +1,58 @@
+name: Weekly Health Check
+
+on:
+  schedule:
+    # Tous les lundis à 9h UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  health:
+    name: Project Health Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name:  Checkout code
+      uses: actions/checkout@v4
+    
+    - name:  Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.12"
+    
+    - name:  Install Poetry
+      uses: snok/install-poetry@v1
+    
+    - name:  Install dependencies
+      run: poetry install
+    
+    - name:  Run all tests
+      run: poetry run pytest tests/ -v --tb=short
+    
+    - name:  Code metrics
+      run: |
+        echo "## Code Metrics Report" > metrics.md
+        echo "" >> metrics.md
+        echo "### Complexity" >> metrics.md
+        poetry run radon cc src/recipe_recommender/ -a >> metrics.md
+        echo "" >> metrics.md
+        echo "### Maintainability Index" >> metrics.md
+        poetry run radon mi src/recipe_recommender/ >> metrics.md
+    
+    - name:  Dependency audit
+      run: |
+        poetry show --outdated
+      continue-on-error: true
+    
+    - name:  Create issue if failures
+      if: failure()
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: ' Weekly Health Check Failed',
+            body: 'The weekly health check has detected issues. Please review the workflow logs.',
+            labels: ['health-check', 'automated']
+          })
