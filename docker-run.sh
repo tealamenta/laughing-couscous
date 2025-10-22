@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo ""
+echo "="
+echo ""
 
 # Vérifier Docker
 if ! command -v docker &> /dev/null; then
