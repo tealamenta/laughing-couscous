@@ -1,8 +1,6 @@
 #!/bin/bash
 
-echo " D ER E"
-echo "="
-echo ""
+
 
 # Vérifier Docker
 if ! command -v docker &> /dev/null; then

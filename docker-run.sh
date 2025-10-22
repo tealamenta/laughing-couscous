@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo " T PE DER (ER)"
-echo "="
-echo ""
 
 # Vérifier Docker
 if ! command -v docker &> /dev/null; then
