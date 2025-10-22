@@ -149,12 +149,13 @@ poetry install
 poetry run streamlit run src/recipe_recommender/app.py
 ```
 
-### 4. (Optionnel) Utiliser Docker
+### 4.  Utiliser Docker
+Pour utiliser Docker avec les scripts fournis :
 
 ```bash
-docker-compose build
-docker-compose up -d
-# Accès : http://localhost:8501
+./docker-build.sh       # Build l'image Docker
+./docker-run.sh         # Lance le conteneur (accès : http://localhost:8501)
+./docker-stop.sh        # Stoppe et nettoie le conteneur
 ```
 
 ---
