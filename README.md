@@ -104,20 +104,27 @@ recipe-recommender/
 ├── tests/
 │   ├── __init__.py
 │   ├── conftest.py
+│   ├── test_app.py
 │   ├── test_app_integration.py
+│   ├── test_bert_recommender.py
 │   ├── test_cache_manager.py
 │   ├── test_config.py
+│   ├── test_data_loader.py
 │   ├── test_favorites.py
+│   ├── test_favorites_extra.py
 │   ├── test_filters.py
 │   ├── test_hybrid_recommender.py
 │   ├── test_logger.py
+│   ├── test_logger_extra.py
+│   ├── test_nutrition.py
 │   ├── test_nutrition_extended.py.skip
 │   ├── test_nutrition_filters.py
 │   ├── test_nutrition.py.skip
 │   ├── test_recipe.py
 │   ├── test_recommender.py
-│   └── test_tabs_handler.py
+│   ├── test_tabs_handler.py
 └── user_favorites.json
+
 ```
 
 ---
@@ -179,20 +186,6 @@ Pour utiliser Docker avec les scripts fournis :
 - Ajout aux favoris : cliquez sur l’icône étoile pour sauvegarder une recette.
 - Visualisation nutritionnelle : consultez le radar nutritionnel et le graphique des calories.
 ».
-
----
-
-## FAQ
-
-**Quels formats de données sont supportés ?**  
-Le projet utilise des fichiers CSV pour les recettes et interactions.
-
-**Comment déployer sur Streamlit Cloud ?**  
-Poussez sur la branche `main`, le déploiement est automatique.
-
-**Comment ajouter un nouvel algorithme de recommandation ?**  
-Ajoutez votre modèle dans `src/recipe_recommender/models/recommender.py`.
-
 
 ---
 
