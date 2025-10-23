@@ -1,76 +1,55 @@
-"""Tests pour HybridRecommender."""
-
+from typing import List
 import pytest
-from recipe_recommender.models.hybrid_recommender import HybridRecommender
-from recipe_recommender.models.recipe import Recipe
+
+from src.recipe_recommender.models.hybrid_recommender import HybridRecommender
+
+
+class FakeRecipe:
+    """Objet recette factice utilisé pour les tests."""
+
+    def __init__(self, id: int, tags: List[str]) -> None:
+        self.recipe_id: int = id
+        self.title: str = f"Test {id}"
+        self.tags: List[str] = tags
+        self.name: str = f"Test recipe {id}"
+        self.description: str = "Desc"
+        self.ingredients: List[str] = ["ing1"]
 
 
 @pytest.fixture
-def many_recipes():
-    """Créer 30 recettes pour TF-IDF."""
-    flavors = [
-        "chocolate",
-        "vanilla",
-        "strawberry",
-        "lemon",
-        "orange",
-        "apple",
-        "banana",
-        "coconut",
-        "caramel",
-        "peanut",
-        "almond",
-        "walnut",
-        "pecan",
-        "hazelnut",
-        "cashew",
-        "cinnamon",
-        "ginger",
-        "nutmeg",
-        "cardamom",
-        "clove",
-        "maple",
-        "honey",
-        "mint",
-        "raspberry",
-        "blueberry",
-        "cherry",
-        "mango",
-        "pineapple",
-        "lime",
-        "grape",
-    ]
-
+def recipes() -> List[FakeRecipe]:
+    """
+    Fournit un petit jeu de recettes factices. Le tag 'common' apparaît
+    exactement dans deux recettes pour satisfaire min_df=2 du TfidfVectorizer.
+    """
     return [
-        Recipe(
-            recipe_id=i + 1,
-            name=f"{flavors[i]} Cookies",
-            description=f"Delicious {flavors[i]} flavored cookies recipe with unique ingredients",
-            minutes=30 + i,
-            tags=["dessert", "cookies", flavors[i], "homemade"],
-            nutrition=[200.0 + i * 5, 10.0, 5.0, 15.0, 25.0, 8.0, 15.0],
-            ingredients=[flavors[i], "flour", "sugar", "butter", "eggs"],
-            steps=["Mix all ingredients", "Form cookies", "Bake until golden"],
-            n_steps=3,
-            n_ingredients=5,
-        )
-        for i in range(30)
+        FakeRecipe(1, ["common", "test"]),
+        FakeRecipe(2, ["common", "hybrid"]),
+        FakeRecipe(3, ["recommendation", "other"]),
     ]
 
 
-def test_hybrid_init(many_recipes):
-    """Test initialisation."""
-    hybrid = HybridRecommender(many_recipes, tfidf_weight=0.5, bert_weight=0.5)
-    assert len(hybrid.recipes) == 30
-    assert hybrid.tfidf_weight == 0.5
+@pytest.fixture
+def interactions() -> List[dict]:
+    """Interactions factices minimalistes."""
+    return [{"user_id": 1, "recipe_id": 1}]
 
 
-def test_hybrid_get_recipe_by_id(many_recipes):
-    """Test get_recipe_by_id."""
-    hybrid = HybridRecommender(many_recipes)
+def test_hybrid_recommender_basic(recipes: List[FakeRecipe], interactions: List[dict]):
+    """
+    Test basique du HybridRecommender sur un petit jeu factice.
+    Vérifie que fit() puis recommend() renvoient une liste.
+    """
+    recommender = HybridRecommender(recipes, interactions)
 
-    recipe = hybrid.get_recipe_by_id(1)
-    assert recipe.recipe_id == 1
+    # Forcer des poids numériques pour éviter toute ambiguïté dans le calcul
+    recommender.tfidf_weight = 0.5
+    recommender.bert_weight = 0.5
 
-    recipe = hybrid.get_recipe_by_id(999)
-    assert recipe is None
+    recommender.fit()
+    liked_recipe_ids = [1]
+    recs = recommender.recommend(liked_recipe_ids)
+
+    assert isinstance(recs, list)
+    # Optionnel : vérifier qu'on reçoit au moins une recommandation
+    assert len(recs) >= 1

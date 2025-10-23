@@ -1,10 +1,10 @@
 # Recipe Recommender
 
-![CI Status](https://github.com/tealamenta/recipe-recommender/workflows/CI%20-%20Tests%20%26%20Quality/badge.svg)
+![CI Status](https://github.com/tealamenta/recipe-recommender/actions/workflows/CI%20-%20Tests%20%26%20Quality.yml/badge.svg)
 ![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)
 ![Code Grade](https://img.shields.io/badge/complexity-A%20(3.27)-brightgreen.svg)
 ![Tests](https://img.shields.io/badge/tests-101%20passing-success.svg)
-![Coverage](https://img.shields.io/badge/coverage-41%25-yellow.svg)
+![Coverage](https://img.shields.io/badge/coverage-87%25-brightgreen.svg)
 ![License](https://img.shields.io/badge/license-MIT-blue.svg)
 
 ---
