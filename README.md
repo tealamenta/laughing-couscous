@@ -116,10 +116,8 @@ recipe-recommender/
 │   ├── test_hybrid_recommender.py
 │   ├── test_logger.py
 │   ├── test_logger_extra.py
-│   ├── test_nutrition.py
-│   ├── test_nutrition_extended.py.skip
-│   ├── test_nutrition_filters.py
-│   ├── test_nutrition.py.skip
+│   ├── test_nutrition.py│ 
+│   ├── test_nutrition_filters.py│  
 │   ├── test_recipe.py
 │   ├── test_recommender.py
 │   ├── test_tabs_handler.py
