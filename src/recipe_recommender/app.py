@@ -676,8 +676,11 @@ def main() -> None:
         recipes, ingredient_list, recommender = load_data(data_path)
     except Exception as e:  # ← CHANGÉ DE DataLoadError À Exception
         logger.critical("Impossible de charger les donnees: %s", str(e))
-        st.error("Erreur de chargement des donnees")
-        st.error(...)
+        st.error(
+        f"Verifiez que les fichiers CSV sont presents dans `{data_path}/`\n\n"
+        "Telechargez le dataset depuis: "
+        "[Kaggle - Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions)"
+    )
         st.stop()
         return  
 
