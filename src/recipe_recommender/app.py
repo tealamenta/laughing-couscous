@@ -668,20 +668,24 @@ def main() -> None:
     data_path = os.getenv("DATA_PATH", "./data")
 
     # Initialize variables with defaults to prevent UnboundLocalError
-    recipes = []  # ← DÉPLACÉ AVANT LE TRY
+    recipes = []
     ingredient_list = []
     recommender = None
 
     try:
         recipes, ingredient_list, recommender = load_data(data_path)
-    except Exception as e:  # ← CHANGÉ DE DataLoadError À Exception
+    except Exception as e:
         logger.critical("Impossible de charger les donnees: %s", str(e))
+        st.error("Erreur de chargement des donnees")
         st.error(
-        f"Verifiez que les fichiers CSV sont presents dans `{data_path}/`\n\n"
-        "Telechargez le dataset depuis: "
-        "[Kaggle - Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions)"
-    )
-        st.stop()
+            f"Verifiez que les fichiers CSV sont presents dans `{data_path}/`\n\n"
+            "Telechargez le dataset depuis: "
+            "[Kaggle - Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions)"
+        )
+        try:
+            st.stop()
+        except (SystemExit, Exception):
+            pass  # Dans les tests, st.stop() peut lever SystemExit
         return  
 
     # Titre principal

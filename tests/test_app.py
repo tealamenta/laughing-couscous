@@ -31,7 +31,7 @@ def test_main():
             instance.load_favorites.return_value = []
 
             #  AJOUTEZ CE MOCK POUR st.stop()
-            with patch("recipe_recommender.app.st.stop", side_effect=SystemExit):
+            with patch("recipe_recommender.app.st.stop"):
                 with patch(
                     "recipe_recommender.app.st.tabs",
                     return_value=[MagicMock(), MagicMock(), MagicMock()],
@@ -56,8 +56,6 @@ def test_main():
                                 with patch(
                                     "recipe_recommender.app.st.slider", return_value=60
                                 ):
-                                    try:
-                                        main()
-                                    except SystemExit:
-                                        # C'est normal si st.stop() est appelé
-                                        pass
+                                    
+                                    main()
+                                   
