@@ -669,7 +669,7 @@ def main() -> None:
 
     try:
         recipes, ingredient_list, recommender = load_data(data_path)
-    except DataLoadError as e:
+    except Exception as e:  # Changed from DataLoadError to Exception
         logger.critical("Impossible de charger les donnees: %s", str(e))
         st.error("Erreur de chargement des donnees")
         st.error(
@@ -677,12 +677,8 @@ def main() -> None:
             "Telechargez le dataset depuis: "
             "[Kaggle - Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions)"
         )
-        # Fallback pour éviter l'UnboundLocalError
-        recipes = []
-        ingredient_list = []
-        recommender = None
-        st.stop()  # facultatif, si tu veux arrêter l'exécution ici
-
+        # Initialize with empty values and stop execution
+        st.stop()  # Stop immediately - no code below will execute
 
     # Titre principal
     st.title("Recipe Recommender")
@@ -741,7 +737,3 @@ def main() -> None:
     )
 
     logger.debug("Rendu de la page termine")
-
-
-if __name__ == "__main__":
-    main()
