@@ -23,21 +23,15 @@ class SessionStateMock:
 
 
 def mock_st_columns(spec):
-    """Retourne `spec` colonnes mockées (st.columns(n) → n MagicMock)."""
+    """Retourne spec colonnes mockées."""
     return [MagicMock() for _ in range(spec)]
 
 
 def test_main():
-    """
-    Teste que `main()` s'exécute sans lever d'exception,
-    même en cas d'erreur de chargement des données.
-    """
+    """Teste que main() s'exécute sans erreur."""
     session_state = SessionStateMock()
 
-    # Patch st.session_state une seule fois
     with patch.object(st, "session_state", session_state):
-
-        # --- Tous les patches Streamlit ---
         patches = [
             patch("recipe_recommender.app.st.sidebar.metric"),
             patch("recipe_recommender.app.st.sidebar.title"),
@@ -72,21 +66,16 @@ def test_main():
             patch("recipe_recommender.app.load_data", return_value=([], [], None)),
         ]
 
-        # Démarrer les patches
         for p in patches:
             p.start()
 
         try:
-            # --- Patch séparé pour FavoritesManager ---
             with patch("recipe_recommender.app.FavoritesManager") as MockFavMgr:
                 mock_mgr = MockFavMgr.return_value
                 mock_mgr.load_favorites.return_value = []
                 mock_mgr.add_favorite.return_value = []
                 mock_mgr.remove_favorite.return_value = []
-
                 main()
-
         finally:
-            # Nettoyer proprement
             for p in patches:
                 p.stop()
