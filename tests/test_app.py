@@ -1,14 +1,16 @@
+# tests/test_app.py
 from unittest.mock import MagicMock, patch
 import streamlit as st
 from recipe_recommender.app import main
 
 
 class SessionStateMock:
+    """Mock minimal de st.session_state (dict-like)."""
     def __init__(self):
         self._store = {}
 
     def __getitem__(self, key):
-        return self._store.get(key, None)
+        return self._store.get(key)
 
     def __setitem__(self, key, value):
         self._store[key] = value
@@ -16,53 +18,77 @@ class SessionStateMock:
     def __contains__(self, key):
         return key in self._store
 
+    def __delitem__(self, key):
+        self._store.pop(key, None)
 
-# Mock pour st.columns avec nombre variable de colonnes
-def mock_st_columns(num):
-    return [MagicMock() for _ in range(num)]
+
+def mock_st_columns(spec):
+    """Retourne `spec` colonnes mockées (st.columns(n) → n MagicMock)."""
+    return [MagicMock() for _ in range(spec)]
 
 
 def test_main():
-    # Mock session_state comme un dictionnaire simple
-    mock_session_state = SessionStateMock()
+    """
+    Teste que `main()` s'exécute sans lever d'exception,
+    même en cas d'erreur de chargement des données.
+    """
+    # --- Mock global de st.session_state ---
+    session_state = SessionStateMock()
 
-    with patch.object(st, "session_state", mock_session_state):
-        with patch("recipe_recommender.app.st.sidebar.metric"), \
-             patch("recipe_recommender.app.st.stop"), \
-             patch("recipe_recommender.app.st.tabs", return_value=[MagicMock()] * 3), \
-             patch("recipe_recommender.app.st.columns", side_effect=mock_st_columns), \
-             patch("recipe_recommender.app.st.text_input", return_value=""), \
-             patch("recipe_recommender.app.st.slider", return_value=60), \
-             patch("recipe_recommender.app.st.button", return_value=False), \
-             patch("recipe_recommender.app.st.pyplot"), \
-             patch("recipe_recommender.app.st.plotly_chart"), \
-             patch("recipe_recommender.app.st.success"), \
-             patch("recipe_recommender.app.st.info"), \
-             patch("recipe_recommender.app.st.warning"), \
-             patch("recipe_recommender.app.st.error"), \
-             patch("recipe_recommender.app.st.markdown"), \
-             patch("recipe_recommender.app.st.expander", return_value=MagicMock()), \
-             patch("recipe_recommender.app.st.multiselect", return_value=[]), \
-             patch("recipe_recommender.app.st.selectbox", return_value="Toutes"), \
-             patch("recipe_recommender.app.render_search_filters", return_value={
-                 "search_query": "",
-                 "selected_ingredients": [],
-                 "selected_dietary": [],
-                 "selected_ethnicity": "Toutes",
-                 "max_time": 60,
-                 "cal_range": (0, 500),
-             }), \
-             patch("recipe_recommender.app.FavoritesManager") as MockFavMgr, \
-             patch("recipe_recommender.app.load_data", return_value=([], [], None)):  # CORRIGÉ ICI
+    with patch.object(st, "session_state", session_state):
 
-            # Configuration du mock pour FavoritesManager
-            mock_fav_mgr = MockFavMgr.return_value
-            mock_fav_mgr.load_favorites.return_value = []
-            mock_fav_mgr.add_favorite.return_value = []
-            mock_fav_mgr.remove_favorite.return_value = []
+        # --- Tous les appels Streamlit ---
+        patches = [
+            patch("recipe_recommender.app.st.sidebar.metric"),
+            patch("recipe_recommender.app.st.stop"),                     
+            patch("recipe_recommender.app.st.tabs", return_value=[MagicMock()] * 3),
+            patch("recipe_recommender.app.st.columns", side_effect=mock_st_columns),
+            patch("recipe_recommender.app.st.text_input", return_value=""),
+            patch("recipe_recommender.app.st.slider", return_value=60),
+            patch("recipe_recommender.app.st.button", return_value=False),
+            patch("recipe_recommender.app.st.pyplot"),
+            patch("recipe_recommender.app.st.plotly_chart"),
+            patch("recipe_recommender.app.st.success"),
+            patch("recipe_recommender.app.st.info"),
+            patch("recipe_recommender.app.st.warning"),
+            patch("recipe_recommender.app.st.error"),
+            patch("recipe_recommender.app.st.markdown"),
+            patch("recipe_recommender.app.st.expander", return_value=MagicMock()),
+            patch("recipe_recommender.app.st.multiselect", return_value=[]),
+            patch("recipe_recommender:st.selectbox", return_value="Toutes"),
+            patch("recipe_recommender.app.render_search_filters", return_value={
+                "search_query": "",
+                "selected_ingredients": [],
+                "selected_dietary": [],
+                "selected_ethnicity": "Toutes",
+                "max_time": 60,
+                "cal_range": (0, 500),
+            }),
+            # --- PATCH CORRIGÉ : load_data au lieu de load_recipes ---
+            patch("recipe_recommender.app.load_data", return_value=([], [], None)),
+        ]
 
-            # Exécuter main()
-            main()
+        # Démarre tous les patches
+        with patch.object(st, "session_state", session_state):
+            for p in patches:
+                p.start()
 
-    # Le test passe si main() s'exécute sans lever d'exception
+            try:
+                # --- Patch du FavoritesManager avec as ---
+                with patch("recipe_recommender.app.FavoritesManager") as MockFavMgr:
+                    # --- Mock du FavoritesManager ---
+                    mock_mgr = MockFavMgr.return_value
+                    mock_mgr.load_favorites.return_value = []
+                    mock_mgr.add_favorite.return_value = []
+                    mock_mgr.remove_favorite.return_value = []
+
+                    # --- Exécution de main() ---
+                    main()
+
+            finally:
+                # Nettoyage propre
+                for p in patches:
+                    p.stop()
+
+    # Si on arrive ici → test passé
     assert True
