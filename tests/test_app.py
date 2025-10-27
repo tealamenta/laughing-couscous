@@ -3,6 +3,7 @@ import streamlit as st
 from recipe_recommender.app import main
 
 
+# Mock pour simuler st.session_state
 class SessionStateMock:
     def __init__(self):
         self._store = {}
@@ -30,7 +31,7 @@ def test_main():
             instance = MockFavMgr.return_value
             instance.load_favorites.return_value = []
 
-            #  AJOUTEZ CE MOCK POUR st.stop()
+            # Mock pour st.stop pour que le test continue
             with patch("recipe_recommender.app.st.stop"):
                 with patch(
                     "recipe_recommender.app.st.tabs",
@@ -56,6 +57,10 @@ def test_main():
                                 with patch(
                                     "recipe_recommender.app.st.slider", return_value=60
                                 ):
-                                    
-                                    main()
-                                   
+                                    # Mock du chargement des recettes pour éviter l'erreur
+                                    with patch(
+                                        "recipe_recommender.app.load_recipes",
+                                        return_value=[]
+                                    ):
+                                        # Appel de main() sans crash
+                                        main()
