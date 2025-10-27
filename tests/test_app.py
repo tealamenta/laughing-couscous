@@ -2,8 +2,6 @@ from unittest.mock import MagicMock, patch
 import streamlit as st
 from recipe_recommender.app import main
 
-
-# Mock pour simuler st.session_state
 class SessionStateMock:
     def __init__(self):
         self._store = {}
@@ -17,11 +15,8 @@ class SessionStateMock:
     def __contains__(self, key):
         return key in self._store
 
-
-# Mock pour st.columns avec nombre variable de colonnes
 def mock_st_columns(num):
     return [MagicMock() for _ in range(num)]
-
 
 def test_main():
     mock_session_state = SessionStateMock()
@@ -31,15 +26,18 @@ def test_main():
             instance = MockFavMgr.return_value
             instance.load_favorites.return_value = []
 
-            # Mock pour st.stop pour que le test continue
+            # Mock st.stop pour que l'exécution continue
             with patch("recipe_recommender.app.st.stop"):
+                # Mock des tabs
                 with patch(
                     "recipe_recommender.app.st.tabs",
                     return_value=[MagicMock(), MagicMock(), MagicMock()],
                 ):
+                    # Mock des colonnes
                     with patch(
                         "recipe_recommender.app.st.columns", side_effect=mock_st_columns
                     ):
+                        # Mock des filtres
                         with patch(
                             "recipe_recommender.app.render_search_filters",
                             return_value={
@@ -51,16 +49,17 @@ def test_main():
                                 "cal_range": (0, 500),
                             },
                         ):
+                            # Mock des inputs Streamlit
                             with patch(
                                 "recipe_recommender.app.st.text_input", return_value=""
                             ):
                                 with patch(
                                     "recipe_recommender.app.st.slider", return_value=60
                                 ):
-                                    # Mock du chargement des recettes pour éviter l'erreur
+                                    # Mock **load_recipes** pour qu'il retourne toujours une liste vide
+                                    # et **ne lève jamais d'exception**
                                     with patch(
                                         "recipe_recommender.app.load_recipes",
                                         return_value=[]
                                     ):
-                                        # Appel de main() sans crash
                                         main()
