@@ -667,18 +667,19 @@ def main() -> None:
     # Charger les donnees
     data_path = os.getenv("DATA_PATH", "./data")
 
+    # Initialize variables with defaults to prevent UnboundLocalError
+    recipes = []  # ← DÉPLACÉ AVANT LE TRY
+    ingredient_list = []
+    recommender = None
+
     try:
         recipes, ingredient_list, recommender = load_data(data_path)
-    except Exception as e:  # Changed from DataLoadError to Exception
+    except Exception as e:  # ← CHANGÉ DE DataLoadError À Exception
         logger.critical("Impossible de charger les donnees: %s", str(e))
         st.error("Erreur de chargement des donnees")
-        st.error(
-            f"Verifiez que les fichiers CSV sont presents dans `{data_path}/`\n\n"
-            "Telechargez le dataset depuis: "
-            "[Kaggle - Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions)"
-        )
-        # Initialize with empty values and stop execution
-        st.stop()  # Stop immediately - no code below will execute
+        st.error(...)
+        st.stop()
+        return  
 
     # Titre principal
     st.title("Recipe Recommender")
@@ -737,3 +738,7 @@ def main() -> None:
     )
 
     logger.debug("Rendu de la page termine")
+
+
+if __name__ == "__main__":
+    main()
