@@ -1,5 +1,7 @@
 name: Weekly Health Check
-
+permissions:
+  issues: write
+  contents: read
 on:
   schedule:
     # Tous les lundis à 9h UTC
