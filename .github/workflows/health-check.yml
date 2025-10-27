@@ -30,6 +30,30 @@ jobs:
     
     - name:  Install dependencies
       run: poetry install
+
+    - name: 🔍 Debug - Verify test file
+      run: |
+        echo "=== Git commit info ==="
+        git log -1 --oneline
+        echo ""
+        echo "=== Full path ==="
+        pwd
+        ls -la tests/
+        echo ""
+        echo "=== Content of line 32 ==="
+        sed -n '32p' tests/test_app.py
+        echo ""
+        echo "=== Lines 30-35 ==="
+        sed -n '30,35p' tests/test_app.py
+        echo ""
+        echo "=== Search for load_recipes ==="
+        grep -n "load_recipes" tests/test_app.py || echo "NOT FOUND (good)"
+        echo ""
+        echo "=== Search for load_data ==="
+        grep -n "load_data" tests/test_app.py || echo "NOT FOUND (bad)"
+        echo ""
+        echo "=== File checksum ==="
+        md5sum tests/test_app.py
     
     - name:  Run all tests
       run: poetry run pytest tests/ -v --tb=short --cache-clear
