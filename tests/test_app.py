@@ -64,7 +64,7 @@ def test_main():
                 "max_time": 60,
                 "cal_range": (0, 500),
             }),
-            # --- PATCH CORRIGÉ : load_data au lieu de load_recipes ---
+            
             patch("recipe_recommender.app.load_data", return_value=([], [], None)),
         ]
 
