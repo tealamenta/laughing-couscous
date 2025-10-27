@@ -70,19 +70,7 @@ DIETARY_LIST = [
 ]
 
 
-# Liste des régimes alimentaires pour les filtres
-DIETARY_LIST = [
-    "Végétarien",
-    "Végétalien",
-    "Sans gluten",
-    "Sans lactose",
-    "Paléo",
-    "Cétogène",
-    "Faible en calories",
-    "Riche en protéines",
-    "Faible en glucides",
-    "Sans sucre ajouté",
-]
+
 
 
 # Configuration de la page Streamlit
@@ -689,7 +677,12 @@ def main() -> None:
             "Telechargez le dataset depuis: "
             "[Kaggle - Food.com Recipes](https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions)"
         )
-        st.stop()
+        # Fallback pour éviter l'UnboundLocalError
+        recipes = []
+        ingredient_list = []
+        recommender = None
+        st.stop()  # facultatif, si tu veux arrêter l'exécution ici
+
 
     # Titre principal
     st.title("Recipe Recommender")
