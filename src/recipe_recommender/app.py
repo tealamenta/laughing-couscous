@@ -707,7 +707,7 @@ def main() -> None:
 
     # Sidebar - Statistiques
     st.sidebar.title("Statistiques")
-    st.sidebar.metric("Total de recettes", f"{len(recipes):,}")
+    #st.sidebar.metric("Total de recettes", f"{len(recipes):,}")
     st.sidebar.metric("Ingredients disponibles", f"{len(ingredient_list):,}")
 
     # Badge dynamique pour les favoris
