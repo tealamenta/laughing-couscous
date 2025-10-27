@@ -29,7 +29,8 @@ jobs:
       run: poetry install
     
     - name:  Run all tests
-      run: poetry run pytest tests/ -v --tb=short
+      run: poetry run pytest tests/ -v --tb=short --cache-clear
+
     
     - name:  Code metrics
       run: |
