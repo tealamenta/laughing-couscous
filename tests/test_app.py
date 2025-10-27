@@ -19,44 +19,32 @@ class SessionStateMock:
 def mock_st_columns(num):
     return [MagicMock() for _ in range(num)]
 
+
+
 def test_main():
-    mock_session_state = SessionStateMock()
+    # Patch session_state pour Streamlit
+    with patch.object(st, "session_state", {}):
+        # Patch tous les objets Streamlit utilisés dans main
+        with patch("recipe_recommender.app.st.sidebar.metric"), \
+             patch("recipe_recommender.app.st.stop"), \
+             patch("recipe_recommender.app.st.tabs", return_value=[MagicMock()]*3), \
+             patch("recipe_recommender.app.st.columns", return_value=[MagicMock()]*3), \
+             patch("recipe_recommender.app.st.text_input", return_value=""), \
+             patch("recipe_recommender.app.st.slider", return_value=60), \
+             patch("recipe_recommender.app.render_search_filters", return_value={
+                 "search_query": "",
+                 "selected_ingredients": [],
+                 "selected_dietary": [],
+                 "selected_ethnicity": "Toutes",
+                 "max_time": 60,
+                 "cal_range": (0, 500),
+             }), \
+             patch("recipe_recommender.app.FavoritesManager") as MockFavMgr:
 
-    with patch.object(st, "session_state", mock_session_state):
-        # Mock FavoritesManager pour éviter de charger de vrais favoris
-        with patch("recipe_recommender.app.FavoritesManager") as MockFavMgr:
-            instance = MockFavMgr.return_value
-            instance.load_favorites.return_value = []
+            # Evite de planter si main() essaie de charger des favoris
+            MockFavMgr.return_value.load_favorites.return_value = []
 
-            # Mock load_recipes pour retourner une liste vide et éviter l'erreur
-            with patch("recipe_recommender.app.load_recipes", return_value=[]):
-                with patch("recipe_recommender.app.st.stop"):
-                    with patch(
-                        "recipe_recommender.app.st.tabs",
-                        return_value=[MagicMock(), MagicMock(), MagicMock()],
-                    ):
-                        with patch(
-                            "recipe_recommender.app.st.columns", side_effect=mock_st_columns
-                        ):
-                            with patch(
-                                "recipe_recommender.app.render_search_filters",
-                                return_value={
-                                    "search_query": "",
-                                    "selected_ingredients": [],
-                                    "selected_dietary": [],
-                                    "selected_ethnicity": "Toutes",
-                                    "max_time": 60,
-                                    "cal_range": (0, 500),
-                                },
-                            ):
-                                with patch(
-                                    "recipe_recommender.app.st.text_input", return_value=""
-                                ):
-                                    with patch(
-                                        "recipe_recommender.app.st.slider", return_value=60
-                                    ):
-                                        # Appel de main() sans qu'il plante
-                                        main()
+            # Lancement de main() — il ne plantera jamais
+            main()
 
-    # Si on arrive ici, c'est que main() n'a pas levé d'exception
     assert True
