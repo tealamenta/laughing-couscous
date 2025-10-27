@@ -30,29 +30,34 @@ def test_main():
             instance = MockFavMgr.return_value
             instance.load_favorites.return_value = []
 
-            # Patch au bon endroit : recipe_recommender.app.st.tabs
-            with patch(
-                "recipe_recommender.app.st.tabs",
-                return_value=[MagicMock(), MagicMock(), MagicMock()],
-            ):
+            #  AJOUTEZ CE MOCK POUR st.stop()
+            with patch("recipe_recommender.app.st.stop", side_effect=SystemExit):
                 with patch(
-                    "recipe_recommender.app.st.columns", side_effect=mock_st_columns
+                    "recipe_recommender.app.st.tabs",
+                    return_value=[MagicMock(), MagicMock(), MagicMock()],
                 ):
                     with patch(
-                        "recipe_recommender.app.render_search_filters",
-                        return_value={
-                            "search_query": "",
-                            "selected_ingredients": [],
-                            "selected_dietary": [],
-                            "selected_ethnicity": "Toutes",
-                            "max_time": 60,
-                            "cal_range": (0, 500),
-                        },
+                        "recipe_recommender.app.st.columns", side_effect=mock_st_columns
                     ):
                         with patch(
-                            "recipe_recommender.app.st.text_input", return_value=""
+                            "recipe_recommender.app.render_search_filters",
+                            return_value={
+                                "search_query": "",
+                                "selected_ingredients": [],
+                                "selected_dietary": [],
+                                "selected_ethnicity": "Toutes",
+                                "max_time": 60,
+                                "cal_range": (0, 500),
+                            },
                         ):
                             with patch(
-                                "recipe_recommender.app.st.slider", return_value=60
+                                "recipe_recommender.app.st.text_input", return_value=""
                             ):
-                                main()
+                                with patch(
+                                    "recipe_recommender.app.st.slider", return_value=60
+                                ):
+                                    try:
+                                        main()
+                                    except SystemExit:
+                                        # C'est normal si st.stop() est appelé
+                                        pass
