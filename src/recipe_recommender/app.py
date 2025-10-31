@@ -9,7 +9,13 @@ Version 2: Utilise l'algorithme Hybrid (TF-IDF + BERT)
 """
 
 import os
+import sys
 import pickle
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(os.path.dirname(current_dir))
+if parent_dir not in sys.path:
+    sys.path.insert(0, parent_dir)
 
 import streamlit as st
 from dotenv import load_dotenv
