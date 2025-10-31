@@ -1,4 +1,4 @@
-rich==14.2.0
+rich<14,>=10.14.0
 markdown-it-py==2.2.0
 mdurl==0.1.2
 streamlit==1.29.0
